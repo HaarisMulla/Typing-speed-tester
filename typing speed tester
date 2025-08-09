@@ -1,0 +1,72 @@
+import tkinter as tk
+from tkinter import messagebox
+import time
+
+# Target text to type
+TARGET_TEXT = "The quick brown fox jumps over the lazy dog"
+
+start_time = None
+timer_running = False
+
+def start_timer(event):
+    global start_time, timer_running
+    if not timer_running:
+        start_time = time.time()
+        timer_running = True
+
+def calculate_speed(event=None):
+    global timer_running
+    typed = text_input.get("1.0", tk.END).strip()
+    end_time = time.time()
+    
+    if not typed:
+        return
+
+    # Calculate WPM
+    elapsed = end_time - start_time
+    words = len(typed.split())
+    wpm = (words / elapsed) * 60
+
+    # Accuracy
+    correct_chars = sum(1 for i, c in enumerate(typed) if i < len(TARGET_TEXT) and c == TARGET_TEXT[i])
+    accuracy = (correct_chars / len(TARGET_TEXT)) * 100
+
+    result_label.config(
+        text=f"WPM: {wpm:.2f} | Accuracy: {accuracy:.2f}% | Time: {elapsed:.2f} sec"
+    )
+
+    timer_running = False
+
+def reset_test(event=None):
+    global timer_running, start_time
+    text_input.delete("1.0", tk.END)
+    result_label.config(text="")
+    start_time = None
+    timer_running = False
+
+# GUI Setup
+root = tk.Tk()
+root.title("Typing Speed Tester")
+root.geometry("600x300")
+root.configure(bg="#f0f8ff")
+
+tk.Label(root, text="Typing Speed Tester", font=("Arial", 18, "bold"), bg="#f0f8ff").pack(pady=10)
+
+tk.Label(root, text="Type the text below:", font=("Arial", 12), bg="#f0f8ff").pack()
+
+target_display = tk.Label(root, text=TARGET_TEXT, font=("Arial", 12, "italic"), wraplength=550, bg="#e6e6fa", pady=10)
+target_display.pack(pady=5)
+
+text_input = tk.Text(root, height=5, width=70, font=("Arial", 12), wrap=tk.WORD)
+text_input.pack(pady=10)
+text_input.bind("<Key>", start_timer)
+text_input.bind("<Return>", lambda e: calculate_speed())
+text_input.bind("<Escape>", reset_test)
+
+result_label = tk.Label(root, text="", font=("Arial", 12), bg="#f0f8ff", fg="green")
+result_label.pack(pady=5)
+
+instruction = tk.Label(root, text="Press ENTER to finish. Press ESC to reset.", font=("Arial", 10), bg="#f0f8ff")
+instruction.pack()
+
+root.mainloop()
